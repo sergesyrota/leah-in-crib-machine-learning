@@ -3,6 +3,7 @@ from __future__ import division
 from __future__ import print_function
 
 # Imports
+import os
 import numpy as np
 import tensorflow as tf
 import pickle
@@ -16,7 +17,8 @@ tf.logging.set_verbosity(tf.logging.DEBUG)
 
 
 def main():
-    dataset_file = '/Users/sergeysyrota/git-source/tensorflow/leah-in-crib/images/train.npz'
+    current_dir = os.path.abspath(os.path.dirname(__file__))
+    dataset_file = current_dir + '/images/train.npz'
     try:
         dataset = pickle.load( open( dataset_file, "rb" ) )
         train_images = dataset["train_images"]
@@ -27,9 +29,9 @@ def main():
         print("Loaded training ({}) and test ({}) sets from cache".format(train_images.shape[0], test_images.shape[0]))
     except IOError:
         #train_images, train_labels, eval_images, eval_labels = get_dataset()
-        train_images, train_labels, _ = get_dataset(430*4, '/Users/sergeysyrota/git-source/tensorflow/leah-in-crib/images/train/', max_delta=0.04, desired_shape=(1,160,90,1), append_axis=0)
+        train_images, train_labels, _ = get_dataset(430*4, current_dir + '/images/train/', max_delta=0.04, desired_shape=(1,160,90,1), append_axis=0)
         print(train_images.shape, train_labels.shape)
-        test_images, test_labels, original_data = get_dataset(39, '/Users/sergeysyrota/git-source/tensorflow/leah-in-crib/images/test/', max_delta=0, desired_shape=(1,160,90,1), append_axis=0, return_original=True)
+        test_images, test_labels, original_data = get_dataset(39, current_dir + '/images/test/', max_delta=0, desired_shape=(1,160,90,1), append_axis=0, return_original=True)
         dataset = {
             "train_images": train_images,
             "train_labels": train_labels,
@@ -48,9 +50,9 @@ def main():
     #exit(0)
 
     classifier = tf.estimator.Estimator(
-          model_fn=cnn_model_fn, model_dir="/tmp/leah_convnet_model_2")
+          model_fn=cnn_model_fn, model_dir= current_dir + "/model_data/dev")
 
-    predict(classifier, test_images, test_labels, original_data)
+    #predict(classifier, test_images, test_labels, original_data)
 
     tensors_to_log = {"probabilities": "softmax_tensor", "true_labels": "one_hot"}
     #tensors_to_log = {"probabilities": "loss"}
@@ -66,7 +68,7 @@ def main():
 
     merged = tf.summary.merge_all()
     sess = tf.Session()
-    train_writer = tf.summary.FileWriter("/tmp/leah_convnet_model_2/debug/")
+    train_writer = tf.summary.FileWriter(current_dir + "/model_data/dev/debug/")
     init = tf.global_variables_initializer()
     sess.run(init)
     for i in range(50):
