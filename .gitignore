@@ -2,3 +2,6 @@
 .Python
 .DS_Store
 images
+.env
+history.json
+

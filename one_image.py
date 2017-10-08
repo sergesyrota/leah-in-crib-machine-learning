@@ -20,6 +20,8 @@ parser.add_argument('--keep-history', type=int, required=False,
     help='Only works in conjunction with repeat-interval. Will keep X data points and information about difference')
 parser.add_argument('--save-history', required=False,
     help='Only works in conjunction with keep-history. Will save json-encoded history that is being tracked in a file specified.')
+parser.add_argument('--print', default=False, action="store_true", required=False,
+    help='Output prediction every time evaluation is ran (useful for monitoring live)')
 
 args = parser.parse_args()
 
@@ -36,7 +38,8 @@ def main(args):
             if (args.save_history is not None):
                 with open(args.save_history, 'w') as f:
                     f.write(json.dumps(history))
-        print(prediction)
+        if (args.print):
+            print(prediction)
         if (args.repeat_interval is None):
             break
         time.sleep(args.repeat_interval)
