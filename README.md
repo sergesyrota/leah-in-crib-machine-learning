@@ -22,3 +22,5 @@ Symmetrical sizes: 640x360, 320x180, 160x90 < this corresponds to /8 reduction, 
 
 When re-training the model, need to make sure to delete all training history first, as saved checkpoints will interfere.
 And if network architecture is changed, it will not work at all, as variables will be different than in checkpoint.
+
+*.env* file needs to have CAMERA_URL parameter, which can provide an updated frame image to analyze (GET, no authentication supported yet)
