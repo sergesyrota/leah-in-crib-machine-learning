@@ -22,17 +22,30 @@ parser.add_argument('--save-history', required=False,
     help='Only works in conjunction with keep-history. Will save json-encoded history that is being tracked in a file specified.')
 parser.add_argument('--print', default=False, action="store_true", required=False,
     help='Output prediction every time evaluation is ran (useful for monitoring live)')
+parser.add_argument('--diff-threshold', default=20, type=int, choices=range(1,255), required=False,
+    help='When keeping history, defines threshold for motion detection (1-255)')
+parser.add_argument('--motion-level', default=50, type=int, required=False,
+    help='Defines number of pixels that need to change to trigger motion flag (out of 14400)')
+
 
 args = parser.parse_args()
 
 def main(args):
     # hold history of previous images and their evaluations
     history = []
+    previous_image = None
     while True:
-        prediction = getPrediction(path=args.image, model_dir=args.model, checkpoint=args.checkpoint,
+        (prediction, img) = getPrediction(path=args.image, model_dir=args.model, checkpoint=args.checkpoint,
             save_path=args.image_save_path)
         if (args.keep_history is not None):
-            history.append({'time': time.time(), 'prediction': float(prediction)})
+            motion_detected = False
+            if (previous_image is not None):
+                diff = img-previous_image
+                print(np.sum(diff > (0.9*args.diff_threshold/255)), np.sum(diff > (args.diff_threshold/255)), np.sum(diff > (1.15*args.diff_threshold/255)))
+                motion_detected = np.sum(diff > (args.diff_threshold/255)) > args.motion_level
+                print(motion_detected)
+            previous_image = img
+            history.append({'time': time.time(), 'prediction': float(prediction), 'motion': bool(motion_detected)})
             if len(history) > args.keep_history:
                 history.pop(0)
             if (args.save_history is not None):
@@ -57,7 +70,7 @@ def getPrediction(path, model_dir, checkpoint=None, save_path=None):
     sess = tf.Session()
     prediction = classifier.predict(input_fn, checkpoint_path=checkpoint)
     for i, p in enumerate(prediction):
-        return(p["probabilities"][1])
+        return (p["probabilities"][1], img)
     #print(prediction)
 
 def get_image(path, save_path=None):
