@@ -29,9 +29,9 @@ def main():
         print("Loaded training ({}) and test ({}) sets from cache".format(train_images.shape[0], test_images.shape[0]))
     except IOError:
         #train_images, train_labels, eval_images, eval_labels = get_dataset()
-        train_images, train_labels, _ = get_dataset(430*4, current_dir + '/images/train/', max_delta=0.04, desired_shape=(1,160,90,1), append_axis=0)
+        train_images, train_labels, _ = get_dataset(753*4, current_dir + '/images/train/', max_delta=0.04, desired_shape=(1,160,90,1), append_axis=0)
         print(train_images.shape, train_labels.shape)
-        test_images, test_labels, original_data = get_dataset(39, current_dir + '/images/test/', max_delta=0, desired_shape=(1,160,90,1), append_axis=0, return_original=True)
+        test_images, test_labels, original_data = get_dataset(80, current_dir + '/images/test/', max_delta=0, desired_shape=(1,160,90,1), append_axis=0, return_original=True)
         dataset = {
             "train_images": train_images,
             "train_labels": train_labels,
@@ -75,7 +75,7 @@ def main():
         print("i: ", i)
         classifier.train(
             input_fn = train_input_fn,
-            steps=10)
+            steps=20)
             #hooks=[logging_hook])
 
         #print(test_images.shape, test_images)
